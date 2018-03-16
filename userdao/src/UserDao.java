@@ -8,14 +8,12 @@ import java.sql.*;
  * Created by iminhyeok on 2018. 3. 16..
  */
 public class UserDao {
-    public User get(int id) throws ClassNotFoundException, SQLException{
-        //mysql driver load
-        Class.forName("com.mysql.jdbc.Driver");
-        //connection
-        Connection connection = DriverManager.getConnection("jdbc:mysql://localhost/jeju","root","");
+    public User get(int id) throws ClassNotFoundException, SQLException {
+
+        Connection connection = getConnection();
         //sql write
         PreparedStatement preparedStatement = connection.prepareStatement("select * from user where id =?");
-        preparedStatement.setInt(1,id);
+        preparedStatement.setInt(1, id);
         //sql start
         ResultSet resultSet = preparedStatement.executeQuery();
         //result user mapping
@@ -31,4 +29,31 @@ public class UserDao {
         //result return
         return user;
     }
-}
+
+
+
+    public Integer insert(User user) throws ClassNotFoundException, SQLException {
+        //mysql driver load
+        Connection connection = getConnection();
+        //sql write
+        PreparedStatement preparedStatement = connection.prepareStatement("insert into user(name, password) values(?, ?)");
+        preparedStatement.setString(1, user.getName());
+        preparedStatement.setString(2, user.getPassword());
+        preparedStatement.executeUpdate();
+        preparedStatement = connection.prepareStatement("select last_insert_id()");
+        ResultSet resultSet = preparedStatement.executeQuery();
+        //result user mapping
+        resultSet.next();
+        Integer id = resultSet.getInt(1);
+        //res disconnect
+        resultSet.close();
+        preparedStatement.close();
+        connection.close();
+        //result return
+        return id;
+    }
+
+    private Connection getConnection() throws ClassNotFoundException, SQLException {
+        Class.forName("com.mysql.jdbc.Driver");
+        return DriverManager.getConnection("jdbc:mysql://localhost/jeju?characterEncoding=utf-8", "root", "");
+    }}
