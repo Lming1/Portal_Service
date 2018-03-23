@@ -4,7 +4,6 @@
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.CoreMatchers.*;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -14,11 +13,13 @@ import java.sql.SQLException;
 public class test {
 
     private UserDao userDao;
+    private DaoFactory daoFactory;
+    
 
     @Before
     public void setup(){
-        userDao = new UserDao();
-
+        daoFactory = new DaoFactory();
+        userDao = daoFactory.getUserDao();
     }
 
     @Test

@@ -7,7 +7,11 @@ import java.sql.*;
  * Created by iminhyeok on 2018. 3. 16..
  */
 public class UserDao {
-    private final ConnectionMaker connectionMaker = new JejuConnectionMaker();
+    private final ConnectionMaker connectionMaker;
+
+    public UserDao(ConnectionMaker connectionMaker) {
+        this.connectionMaker = connectionMaker;
+    }
 
     public User get(int id) throws ClassNotFoundException, SQLException {
 
