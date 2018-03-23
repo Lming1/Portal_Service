@@ -1,5 +1,4 @@
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.*;
@@ -8,9 +7,15 @@ import java.sql.*;
  * Created by iminhyeok on 2018. 3. 16..
  */
 public class UserDao {
+    private final ConnectionMaker connectionMaker;
+
+    public UserDao(ConnectionMaker connectionMaker) {
+        this.connectionMaker = connectionMaker;
+    }
+
     public User get(int id) throws ClassNotFoundException, SQLException {
 
-        Connection connection = getConnection();
+        Connection connection = connectionMaker.getConnection();
         //sql write
         PreparedStatement preparedStatement = connection.prepareStatement("select * from user where id =?");
         preparedStatement.setInt(1, id);
@@ -34,7 +39,7 @@ public class UserDao {
 
     public Integer insert(User user) throws ClassNotFoundException, SQLException {
         //mysql driver load
-        Connection connection = getConnection();
+        Connection connection = connectionMaker.getConnection();
         //sql write
         PreparedStatement preparedStatement = connection.prepareStatement("insert into user(name, password) values(?, ?)");
         preparedStatement.setString(1, user.getName());
@@ -52,8 +57,8 @@ public class UserDao {
         //result return
         return id;
     }
-
-    private Connection getConnection() throws ClassNotFoundException, SQLException {
-        Class.forName("com.mysql.jdbc.Driver");
-        return DriverManager.getConnection("jdbc:mysql://localhost/jeju?characterEncoding=utf-8", "root", "");
-    }}
+//
+//    public Connection getConnection() throws ClassNotFoundException, SQLException{
+//        return connectionMaker.getConnection();
+//    }
+}
