@@ -6,6 +6,8 @@ import static org.hamcrest.CoreMatchers.*;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 
 import java.sql.SQLException;
@@ -14,12 +16,14 @@ public class test {
 
     private UserDao userDao;
     private DaoFactory daoFactory;
-    
+
 
     @Before
     public void setup(){
-        daoFactory = new DaoFactory();
-        userDao = daoFactory.getUserDao();
+        ApplicationContext applicationContext = new AnnotationConfigApplicationContext(DaoFactory.class);
+//        daoFactory = new DaoFactory();
+//        userDao = daoFactory.userDao();
+        userDao = applicationContext.getBean("userDao",UserDao.class);
     }
 
     @Test
