@@ -102,3 +102,8 @@ gradle-app.setting
 
 # Cache of project
 .gradletasknamecache
+
+
+# gradlew
+gradlew
+gradlew.bat
