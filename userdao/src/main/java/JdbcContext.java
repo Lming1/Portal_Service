@@ -1,52 +1,26 @@
+import lombok.AllArgsConstructor;
+import lombok.Cleanup;
+
 import javax.sql.DataSource;
 import java.sql.*;
+@AllArgsConstructor
 
 public class JdbcContext {
     final DataSource dataSource;
 
-    public JdbcContext(DataSource dataSource) {
-        this.dataSource = dataSource;
-
-    }
-
     User jdbcContextForGet(StatementStrategy statementStrategy) throws SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
         User user = null;
-        try {
-            connection = dataSource.getConnection();
-
-            preparedStatement = statementStrategy.makeStatement(connection);
-            resultSet = preparedStatement.executeQuery();
-            //result user mapping
-            if (resultSet.next()) {
-                user = new User();
-                user.setId(resultSet.getInt("id"));
-                user.setName(resultSet.getString("name"));
-                user.setPassword(resultSet.getString("password"));
-            }
-        } finally {
-            if (resultSet != null)
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+        @Cleanup
+        Connection connection = dataSource.getConnection();
+        @Cleanup
+        PreparedStatement preparedStatement = statementStrategy.makeStatement(connection);
+        @Cleanup
+        ResultSet resultSet = preparedStatement.executeQuery();
+        if (resultSet.next()) {
+            user = new User();
+            user.setId(resultSet.getInt("id"));
+            user.setName(resultSet.getString("name"));
+            user.setPassword(resultSet.getString("password"));
         }
         return user;
     }
@@ -56,10 +30,8 @@ public class JdbcContext {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         Integer id;
-        //mysql driver load
         try {
             connection = dataSource.getConnection();
-
             preparedStatement = statementStrategy.makeStatement(connection);
 
             preparedStatement.executeUpdate();
@@ -69,70 +41,63 @@ public class JdbcContext {
 
             id = resultSet.getInt(1);
         } finally {
-            if (resultSet != null) {
+            if (resultSet != null)
                 try {
                     resultSet.close();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
-            }
-            if (preparedStatement != null) {
+            if (preparedStatement != null)
                 try {
                     preparedStatement.close();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
-            }
-            if (connection != null) {
+            if (connection != null)
                 try {
                     connection.close();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
-            }
-        }
 
+        }
         return id;
     }
 
     void jdbcContextForUpdate(StatementStrategy statementStrategy) throws SQLException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
-        //mysql driver load
         try {
             connection = dataSource.getConnection();
-
             preparedStatement = statementStrategy.makeStatement(connection);
-//            PreparedStatement preparedStatement = makePrepareStatement(user, connection);
+
             preparedStatement.executeUpdate();
-            //result user mapping
+
         } finally {
-            if (preparedStatement != null) {
+            if (preparedStatement != null)
                 try {
                     preparedStatement.close();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
-            }
-            if (connection != null) {
+            if (connection != null)
                 try {
                     connection.close();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
-            }
 
         }
     }
 
-    void update(String sql, Object[] params) throws SQLException{
+    void update(String sql, Object[] params) throws SQLException {
         StatementStrategy statementStrategy = connection -> {
-                PreparedStatement preparedStatement = connection.prepareStatement(sql);
-                for (int i = 0; i < params.length; i++){
-                    preparedStatement.setObject(i+1, params[i]);
-                }
-                return preparedStatement;
-            };
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            for (int i = 0; i < params.length; i++) {
+                preparedStatement.setObject(i + 1, params[i]);
+            }
+            return preparedStatement;
+        };
         jdbcContextForUpdate(statementStrategy);
     }
 
@@ -144,7 +109,6 @@ public class JdbcContext {
             }
             return preparedStatement;
         };
-
         return jdbcContextForInsert(statementStrategy);
     }
 
@@ -154,10 +118,8 @@ public class JdbcContext {
             for (int i = 0; i < params.length; i++) {
                 preparedStatement.setObject(i + 1, params[i]);
             }
-
             return preparedStatement;
         };
-
         return jdbcContextForGet(statementStrategy);
     }
 }

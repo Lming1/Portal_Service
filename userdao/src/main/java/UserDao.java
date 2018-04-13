@@ -1,42 +1,64 @@
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+
+import java.sql.*;
+
+
 import java.sql.*;
 
 /**
  * Created by iminhyeok on 2018. 3. 16..
  */
 public class UserDao {
-    private final JdbcContext jdbcContext;
+    private final JdbcTemplate jdbcTemplate;
 
-    public UserDao(JdbcContext jdbcContext) {
-        this.jdbcContext = jdbcContext;
+    public UserDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
-    public User get(int id) throws  SQLException {
-
-        String sql = "select * from user where id =?";
+    public User get(int id) throws SQLException {
+        String sql = "select * from user where id = ?";
         Object[] params = new Object[]{id};
-        return jdbcContext.queryForObject(sql, params);
+        try {
+            return jdbcTemplate.queryForObject(sql, params, (rs, rowNum) -> {
+                User user = new User();
+                user.setId(rs.getInt("id"));
+                user.setName(rs.getString("name"));
+                user.setPassword(rs.getString("password"));
+                return user;
+            });
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
-    public Integer insert(User user) throws  SQLException {
-
+    public Integer insert(User user) throws SQLException {
         String sql = "insert into user(name, password) values (?, ?)";
         Object[] params = new Object[]{user.getName(), user.getPassword()};
-        return jdbcContext.insert(sql, params);
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(con -> {
+            PreparedStatement preparedStatement = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            for (int i = 0; i < params.length; i++) {
+                preparedStatement.setObject(i + 1, params[i]);
+            }
+            return preparedStatement;
+        }, keyHolder);
+        return keyHolder.getKey().intValue();
     }
-
 
     public void update(User user) throws SQLException {
-
         String sql = "update user set name = ?, password = ? where id = ?";
         Object[] params = new Object[]{user.getName(), user.getPassword(), user.getId()};
-        jdbcContext.update(sql, params);
+        jdbcTemplate.update(sql, params);
     }
-
 
     public void delete(Integer id) throws SQLException {
         String sql = "delete from user where id = ?";
         Object[] params = new Object[]{id};
-        jdbcContext.update(sql, params);
+        jdbcTemplate.update(sql, params);
     }
 
 }
