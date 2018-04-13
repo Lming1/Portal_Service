@@ -21,8 +21,8 @@ public class UserDao {
         User user = null;
         try{
             connection = dataSource.getConnection();
-            preparedStatement = connection.prepareStatement("select * from user where id =?");
-            preparedStatement.setInt(1, id);
+            StatementStrategy statementStrategy = new GetUserStatementStrategy(id);
+            preparedStatement = statementStrategy.makeStatement(connection);
             resultSet = preparedStatement.executeQuery();
             //result user mapping
             if (resultSet.next()){
@@ -67,14 +67,14 @@ public class UserDao {
         //mysql driver load
         try {
             connection = dataSource.getConnection();
-            preparedStatement = connection.prepareStatement("insert into user(name, password) values(?, ?)");
-            preparedStatement.setString(1, user.getName());
-            preparedStatement.setString(2, user.getPassword());
+            StatementStrategy statementStrategy = new InsertUserStatementStrategy(user);
+            preparedStatement = statementStrategy.makeStatement(connection);
+
             preparedStatement.executeUpdate();
-            preparedStatement = connection.prepareStatement("select last_insert_id()");
-            resultSet = preparedStatement.executeQuery();
-            //result user mapping
+
+            resultSet = preparedStatement.getGeneratedKeys();
             resultSet.next();
+
             id = resultSet.getInt(1);
         }
         finally {
@@ -110,10 +110,9 @@ public class UserDao {
         //mysql driver load
         try {
             connection = dataSource.getConnection();
-            preparedStatement = connection.prepareStatement("update user set name = ?, password = ? where id = ?");
-            preparedStatement.setString(1, user.getName());
-            preparedStatement.setString(2, user.getPassword());
-            preparedStatement.setInt(3, user.getId());
+            StatementStrategy statementStrategy = new UpdateUserStatementStrategy(user);
+            preparedStatement = statementStrategy.makeStatement(connection);
+//            PreparedStatement preparedStatement = makePrepareStatement(user, connection);
             preparedStatement.executeUpdate();
             //result user mapping
         }
@@ -137,14 +136,16 @@ public class UserDao {
     }
 
 
+
+
     public void delete(Integer id) throws SQLException, ClassNotFoundException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         try {
             connection = dataSource.getConnection();
-            preparedStatement = connection.prepareStatement(
-                "delete from user where id = ?");
-            preparedStatement.setInt(1, id);
+            StatementStrategy statementStrategy = new DeleteUserStatementStrategy(id);
+            preparedStatement = statementStrategy.makeStatement(connection);
+
 
             preparedStatement.executeUpdate();
 
