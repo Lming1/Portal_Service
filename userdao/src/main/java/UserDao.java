@@ -20,7 +20,7 @@ public class UserDao {
     }
 
     public User get(int id) throws SQLException {
-        String sql = "select * from user where id = ?";
+        String sql = "select * from portal where id = ?";
         Object[] params = new Object[]{id};
         try {
             return jdbcTemplate.queryForObject(sql, params, (rs, rowNum) -> {
@@ -36,7 +36,7 @@ public class UserDao {
     }
 
     public Integer insert(User user) throws SQLException {
-        String sql = "insert into user(name, password) values (?, ?)";
+        String sql = "insert into portal(name, password) values (?, ?)";
         Object[] params = new Object[]{user.getName(), user.getPassword()};
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
@@ -50,13 +50,13 @@ public class UserDao {
     }
 
     public void update(User user) throws SQLException {
-        String sql = "update user set name = ?, password = ? where id = ?";
+        String sql = "update portal set name = ?, password = ? where id = ?";
         Object[] params = new Object[]{user.getName(), user.getPassword(), user.getId()};
         jdbcTemplate.update(sql, params);
     }
 
     public void delete(Integer id) throws SQLException {
-        String sql = "delete from user where id = ?";
+        String sql = "delete from portal where id = ?";
         Object[] params = new Object[]{id};
         jdbcTemplate.update(sql, params);
     }
