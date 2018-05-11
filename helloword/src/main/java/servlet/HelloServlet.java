@@ -2,10 +2,12 @@ package servlet;
 
 import lombok.extern.slf4j.Slf4j;
 import javax.servlet.*;
+import javax.servlet.annotation.WebServlet;
 import java.io.IOException;
 
 
 @Slf4j
+@WebServlet("/hello")
 public class HelloServlet extends GenericServlet {
     @Override
     public void destroy() {
