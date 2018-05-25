@@ -6,17 +6,16 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
-
 @Slf4j
 @WebListener
-public class HelloContextListener implements ServletContextListener {
+public class HelloContextListener implements ServletContextListener{
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        log.info("************ context listener init ************");
+        log.info("********** context listener init ****************");
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        log.info("************ context listener destroy ************");
+        log.info("********** context listener destroy ****************");
     }
 }
